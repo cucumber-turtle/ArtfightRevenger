@@ -1,9 +1,12 @@
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -15,6 +18,10 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.client.LaxRedirectStrategy;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 /**
  * Client requesting page data from artfight.net to find all "revenges" to be completed.
@@ -73,13 +80,28 @@ public class AllRevenges {
       } else {
         // Writing page content to file for manual testing
         InputStream stream = entity.getContent();
-        FileOutputStream output = new FileOutputStream("test-page.html");
-        output.write(stream.readAllBytes());
+        String document = new String (stream.readAllBytes(), StandardCharsets.UTF_8);
+        findCharacters(document);
         stream.close();
-        output.close();
       }
     } catch (IOException e) {
       e.printStackTrace();
+    }
+  }
+
+  public static void findCharacters (String html) {
+    Document doc = Jsoup.parse(html);
+    Elements allLinks = doc.getElementsByAttribute("href");
+    List<String> characterList = new ArrayList<>();
+    // TODO: fix regex pattern not matching completely
+    Pattern pattern =
+        Pattern.compile("<a href=\"https://artfight.net/character/[0-9]+\\..+\">");
+    for (Element e : allLinks) {
+      System.out.println("Not matched yet: " + e);
+      if (pattern.matcher(e.toString()).matches()) {
+        System.out.println(e);
+        characterList.add(e.toString());
+      }
     }
   }
 }
