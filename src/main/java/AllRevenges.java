@@ -98,7 +98,6 @@ public class AllRevenges {
             "<img src=\"https://images.artfight.net/character/.+\" title=\".+\" class=\".*\"></a>");
     for (Element e : allLinks) {
       if (pattern.matcher(e.toString()).matches()) {
-        System.out.println("matched:" + e);
         characterList.add(e.toString());
       }
     }
