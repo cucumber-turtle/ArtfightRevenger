@@ -93,13 +93,12 @@ public class AllRevenges {
     Document doc = Jsoup.parse(html);
     Elements allLinks = doc.getElementsByAttribute("href");
     List<String> characterList = new ArrayList<>();
-    // TODO: fix regex pattern not matching completely
     Pattern pattern =
-        Pattern.compile("<a href=\"https://artfight.net/character/[0-9]+\\..+\">");
+        Pattern.compile("<a href=\"https://artfight.net/character/[0-9]+\\.?.*\">" +
+            "<img src=\"https://images.artfight.net/character/.+\" title=\".+\" class=\".*\"></a>");
     for (Element e : allLinks) {
-      System.out.println("Not matched yet: " + e);
       if (pattern.matcher(e.toString()).matches()) {
-        System.out.println(e);
+        System.out.println("matched:" + e);
         characterList.add(e.toString());
       }
     }
