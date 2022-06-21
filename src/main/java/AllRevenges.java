@@ -37,6 +37,30 @@ public class AllRevenges {
    * @param args Executable arguments.
    */
   public static void main(String[] args) {
+    // Http client using standard cookie specification
+    /* On http client redirects: https://www.baeldung.com/httpclient-redirect-on-http-post */
+    HttpClient httpClient = HttpClients.custom().setDefaultRequestConfig(RequestConfig.custom()
+            .setCookieSpec(CookieSpecs.STANDARD).build()).setRedirectStrategy(new LaxRedirectStrategy())
+        .build();
+    HttpUriRequest httpPost = buildRequest(SITE_URL + "/login");
+    try {
+      HttpResponse httpresponse = httpClient.execute(httpPost);
+      // Client is redirected and status should be OK
+      assertEquals(HttpStatus.SC_OK, httpresponse.getStatusLine().getStatusCode());
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    // Accessing characters page
+    try {
+      String document = requestGetHtml(httpClient, SITE_URL + "/manage/characters");
+      List<String> characterLinks = findCharacters(document);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private static HttpUriRequest buildRequest(String url) {
     // Get authenticate file path and parse to Authenticate object
     java.net.URL resourceUrl = AllRevenges.class.getResource("authenticate.json");
     assertNotNull(resourceUrl);
@@ -48,27 +72,15 @@ public class AllRevenges {
     // Build post request for login
     RequestBuilder reqbuilder = RequestBuilder.post();
     //Set URI and parameters
-    reqbuilder = reqbuilder.setUri(SITE_URL + "/login");
+    reqbuilder = reqbuilder.setUri(url);
     reqbuilder = reqbuilder.addParameter("username", username).addParameter("password", password);
 
-    // Http client using standard cookie specification
-    /* On http client redirects: https://www.baeldung.com/httpclient-redirect-on-http-post */
-    HttpClient httpClient = HttpClients.custom().setDefaultRequestConfig(RequestConfig.custom()
-            .setCookieSpec(CookieSpecs.STANDARD).build()).setRedirectStrategy(new LaxRedirectStrategy())
-        .build();
-    HttpUriRequest httpPost = reqbuilder.build();
-    try {
-      HttpResponse httpresponse = httpClient.execute(httpPost);
-      // Client is redirected and status should be OK
-      assertEquals(HttpStatus.SC_OK, httpresponse.getStatusLine().getStatusCode());
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+    return reqbuilder.build();
+  }
 
-    // Accessing characters page
-    HttpGet request = new HttpGet(SITE_URL + "/manage/characters");
+  private static String requestGetHtml (HttpClient httpClient, String url) throws IOException {
+    HttpGet request = new HttpGet(url);
     HttpResponse response;
-    try {
       response = httpClient.execute(request);
       int statusCode = response.getStatusLine().getStatusCode();
 
@@ -81,15 +93,13 @@ public class AllRevenges {
         // Writing page content to file for manual testing
         InputStream stream = entity.getContent();
         String document = new String (stream.readAllBytes(), StandardCharsets.UTF_8);
-        findCharacters(document);
         stream.close();
+        return document;
       }
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+      throw new IOException ("Some error happened here.");
   }
 
-  public static void findCharacters (String html) {
+  private static List<String> findCharacters (String html) {
     Document doc = Jsoup.parse(html);
     Elements allLinks = doc.getElementsByAttribute("href");
     List<String> characterList = new ArrayList<>();
@@ -98,8 +108,11 @@ public class AllRevenges {
             "<img src=\"https://images.artfight.net/character/.+\" title=\".+\" class=\".*\"></a>");
     for (Element e : allLinks) {
       if (pattern.matcher(e.toString()).matches()) {
-        characterList.add(e.toString());
+        String[] splitElement = e.toString().split("\"");
+        System.out.println(splitElement[1]);
+        characterList.add(splitElement[1]);
       }
     }
+    return characterList;
   }
 }
