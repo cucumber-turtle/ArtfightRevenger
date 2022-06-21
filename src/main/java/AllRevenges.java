@@ -62,7 +62,7 @@ public class AllRevenges {
         findAttacks(document, attackLinks);
         pageUrl = findNextPage(document);
       }
-    } catch (IOException e) {
+    } catch (IOException | InterruptedException e) {
       e.printStackTrace();
     }
   }
@@ -98,10 +98,13 @@ public class AllRevenges {
    * @return The document content of the http response.
    * @throws IOException The request execution can throw an exception.
    */
-  private static String requestGetHtml (HttpClient httpClient, String url) throws IOException {
+  private static String requestGetHtml (HttpClient httpClient, String url)
+      throws IOException, InterruptedException {
     HttpGet request = new HttpGet(url);
     HttpResponse response;
-      response = httpClient.execute(request);
+    // Always keep at least 2 seconds time between the last request and the next one
+    Thread.sleep(2000);
+    response = httpClient.execute(request);
       int statusCode = response.getStatusLine().getStatusCode();
 
       assertEquals(HttpStatus.SC_OK, statusCode);
