@@ -143,4 +143,24 @@ public class AllRevenges {
       }
     }
   }
+
+  /**
+   * Finds the next page.
+   *
+   * @param html An HTML document to find attacks from.
+   * @return Returns null if no next page is found, otherwise, returns the URL of the next page.
+   */
+  private static String findNextPage (String html) {
+    Document doc = Jsoup.parse(html);
+    Elements nextPage = doc.getElementsByAttributeValue("rel", "next");
+    for (Element e : nextPage) {
+      if (Pattern.matches("<a class=\"page-link\" href=\"https://artfight.net/~(.|\n)+",
+          e.toString())) {
+        String[] splitElement = e.toString().split("\"");
+        System.out.println(splitElement[3]);
+        return splitElement[3];
+      }
+    }
+    return null;
+  }
 }
