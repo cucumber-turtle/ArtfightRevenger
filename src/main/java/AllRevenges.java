@@ -53,12 +53,15 @@ public class AllRevenges {
     } catch (IOException e) {
       e.printStackTrace();
     }
-
+    List<String> attackLinks = new ArrayList<>();
     try {
-      // Getting character links
-      String document = requestGetHtml(httpClient, SITE_URL + "/~" + username + "/defenses");
-      List<String> attackLinks = new ArrayList<>();
-      findAttacks(document, attackLinks);
+      String pageUrl = SITE_URL + "/~" + username + "/defenses";
+      while (pageUrl != null) {
+        // Getting character links for every page
+        String document = requestGetHtml(httpClient, pageUrl);
+        findAttacks(document, attackLinks);
+        pageUrl = findNextPage(document);
+      }
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -157,7 +160,6 @@ public class AllRevenges {
       if (Pattern.matches("<a class=\"page-link\" href=\"https://artfight.net/~(.|\n)+",
           e.toString())) {
         String[] splitElement = e.toString().split("\"");
-        System.out.println(splitElement[3]);
         return splitElement[3];
       }
     }
