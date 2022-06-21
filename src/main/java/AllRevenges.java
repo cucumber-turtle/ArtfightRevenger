@@ -1,6 +1,8 @@
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -30,6 +32,7 @@ import org.jsoup.select.Elements;
  */
 public class AllRevenges {
   private static final String SITE_URL = "https://artfight.net";
+  private static String username;
 
   /**
    * Used https://www.tutorialspoint.com/apache_httpclient/apache_httpclient_form_based_login.htm
@@ -42,7 +45,7 @@ public class AllRevenges {
     HttpClient httpClient = HttpClients.custom().setDefaultRequestConfig(RequestConfig.custom()
             .setCookieSpec(CookieSpecs.STANDARD).build()).setRedirectStrategy(new LaxRedirectStrategy())
         .build();
-    HttpUriRequest httpPost = buildRequest(SITE_URL + "/login");
+    HttpUriRequest httpPost = buildRequest();
     try {
       HttpResponse httpresponse = httpClient.execute(httpPost);
       // Client is redirected and status should be OK
@@ -53,8 +56,9 @@ public class AllRevenges {
 
     try {
       // Getting character links
-      String document = requestGetHtml(httpClient, SITE_URL + "/manage/characters");
-      List<String> characterLinks = findCharacters(document);
+      String document = requestGetHtml(httpClient, SITE_URL + "/~" + username + "/defenses");
+      List<String> attackLinks = new ArrayList<>();
+      findAttacks(document, attackLinks);
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -63,22 +67,21 @@ public class AllRevenges {
   /**
    * Build the initial request to server with authentication information.
    *
-   * @param url URL to send the request to.
    * @return HttpUriRequest.
    */
-  private static HttpUriRequest buildRequest(String url) {
+  private static HttpUriRequest buildRequest() {
     // Get authenticate file path and parse to Authenticate object
     java.net.URL resourceUrl = AllRevenges.class.getResource("authenticate.json");
     assertNotNull(resourceUrl);
     Authenticate auth = ParseJson.readAuthenticateFile(resourceUrl.getPath());
     assertNotNull(auth);
-    String username = auth.getUsername();
+    username = auth.getUsername();
     String password = auth.getPassword();
 
     // Build post request for login
     RequestBuilder reqbuilder = RequestBuilder.post();
     //Set URI and parameters
-    reqbuilder = reqbuilder.setUri(url);
+    reqbuilder = reqbuilder.setUri("https://artfight.net/login");
     reqbuilder = reqbuilder.addParameter("username", username).addParameter("password", password);
 
     return reqbuilder.build();
@@ -106,8 +109,17 @@ public class AllRevenges {
       } else {
         // Writing page content to file for manual testing
         InputStream stream = entity.getContent();
-        String document = new String (stream.readAllBytes(), StandardCharsets.UTF_8);
+        byte[] bytes = stream.readAllBytes();
+        String document = new String (bytes, StandardCharsets.UTF_8);
         stream.close();
+        try {
+          // writing to file for testing
+          FileOutputStream out = new FileOutputStream("test-page.html");
+          out.write(bytes);
+          out.close();
+        } catch (FileNotFoundException e) {
+          e.printStackTrace();
+        }
         return document;
       }
       throw new IOException ("Some error happened here.");
@@ -115,23 +127,20 @@ public class AllRevenges {
 
   /**
    * Find html document elements containing valid character links and add to new list.
-   * @param html
-   * @return List of valid character links.
+   *
+   * @param html An HTML document to find attacks from.
+   * @param attackLinks List to add attack links to.
    */
-  private static List<String> findCharacters (String html) {
+  private static void findAttacks (String html, List<String> attackLinks) {
     Document doc = Jsoup.parse(html);
     Elements allLinks = doc.getElementsByAttribute("href");
-    List<String> characterList = new ArrayList<>();
     Pattern pattern =
-        Pattern.compile("<a href=\"https://artfight.net/character/[0-9]+\\.?.*\">" +
-            "<img src=\"https://images.artfight.net/character/.+\" title=\".+\" class=\".*\"></a>");
+        Pattern.compile("<a href=\"https://artfight.net/attack/[0-9]+(.|\n)+");
     for (Element e : allLinks) {
       if (pattern.matcher(e.toString()).matches()) {
         String[] splitElement = e.toString().split("\"");
-        System.out.println(splitElement[1]);
-        characterList.add(splitElement[1]);
+        attackLinks.add(splitElement[1]);
       }
     }
-    return characterList;
   }
 }
