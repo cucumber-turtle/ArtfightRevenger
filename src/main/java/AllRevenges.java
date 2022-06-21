@@ -51,8 +51,8 @@ public class AllRevenges {
       e.printStackTrace();
     }
 
-    // Accessing characters page
     try {
+      // Getting character links
       String document = requestGetHtml(httpClient, SITE_URL + "/manage/characters");
       List<String> characterLinks = findCharacters(document);
     } catch (IOException e) {
@@ -60,6 +60,12 @@ public class AllRevenges {
     }
   }
 
+  /**
+   * Build the initial request to server with authentication information.
+   *
+   * @param url URL to send the request to.
+   * @return HttpUriRequest.
+   */
   private static HttpUriRequest buildRequest(String url) {
     // Get authenticate file path and parse to Authenticate object
     java.net.URL resourceUrl = AllRevenges.class.getResource("authenticate.json");
@@ -78,6 +84,14 @@ public class AllRevenges {
     return reqbuilder.build();
   }
 
+  /**
+   * Send a http get request to the server and get the document content as a string.
+   *
+   * @param httpClient The client to execute the request.
+   * @param url The url to send the request to.
+   * @return The document content of the http response.
+   * @throws IOException The request execution can throw an exception.
+   */
   private static String requestGetHtml (HttpClient httpClient, String url) throws IOException {
     HttpGet request = new HttpGet(url);
     HttpResponse response;
@@ -99,6 +113,11 @@ public class AllRevenges {
       throw new IOException ("Some error happened here.");
   }
 
+  /**
+   * Find html document elements containing valid character links and add to new list.
+   * @param html
+   * @return List of valid character links.
+   */
   private static List<String> findCharacters (String html) {
     Document doc = Jsoup.parse(html);
     Elements allLinks = doc.getElementsByAttribute("href");
