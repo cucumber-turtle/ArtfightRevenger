@@ -62,26 +62,40 @@ public class AllRevenges {
         findAttacks(document, attacks);
         pageUrl = findNextPage(document);
       }
-      for (AttackInfo attack : attacks) {
+      // Temporary for testing
+      String attackDoc1 = requestGetHtml(httpClient, attacks.get(2).getAttackLink());
+      int otherAttacks1 = getAttackInfo(attackDoc1, attacks.get(2));
+      /*for (AttackInfo attack : attacks) {
         String attackDoc = requestGetHtml(httpClient, attack.getAttackLink());
-        AttackInfo info = getAttackInfo(attackDoc, attack);
-        break;
-      }
+        int otherAttacks = getAttackInfo(attackDoc, attack);
+      }*/
     } catch (IOException | InterruptedException e) {
       e.printStackTrace();
     }
   }
 
   /**
-   * TODO: for each atk: if !next atk-> save for revenging
+   * Find any related attacks to this one.
+   * Only two relationships are considered, directly preceding, and directly following the attack.
+   *
    * @param html The document content of the http response.
-   * @return An object with the attack information.
+   * @return Return -1 if already revenged. 1 if it has a previous attack. 0 if no related attacks.
    */
-  public static AttackInfo getAttackInfo (String html, AttackInfo attack) {
+  public static int getAttackInfo (String html, AttackInfo attack) {
     Document doc = Jsoup.parse(html);
-    Elements all = doc.getElementsByAttribute("href");
-    // Find previous and next attack links if they exist and create an attackinfo object to return
-    return null;
+    Elements next = doc.select("table:contains(next)");
+    if (!next.isEmpty()) {
+      // If an attack has a next attack then it has already been revenged
+      return -1;
+    }
+    Elements prev = doc.select("table:contains(previous)");
+    if (!next.isEmpty()) {
+      Elements elementsWithLink = prev.select("a[href~=https://artfight.net/attack/[0-9]+.+]");
+      String[] splitElement = elementsWithLink.get(0).toString().split("\"");
+      attack.setNextAttack(splitElement[1]);
+      return 1;
+    }
+    return 0;
   }
 
   /**
