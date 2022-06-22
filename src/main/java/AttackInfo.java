@@ -7,8 +7,7 @@ public class AttackInfo {
   private final String attackName;
   private final String attacker;
   private final String attackLink;
-  private final String prevAttack;
-  private final String nextAttack;
+  private String nextAttack;
 
   public AttackInfo (String attackName, String attacker, String attackLink) {
     assertNotNull(attackName);
@@ -18,20 +17,10 @@ public class AttackInfo {
     this.attackName = attackName;
     this.attacker = attacker;
     this.attackLink = attackLink;
-    this.prevAttack = null;
     this.nextAttack = null;
   }
 
-  public AttackInfo (String attackName, String attacker, String attackLink, String prevAttack,
-      String nextAttack) {
-    assertNotNull(attackName);
-    assertNotNull(attacker);
-    assertNotNull(attackLink);
-
-    this.attackName = attackName;
-    this.attacker = attacker;
-    this.attackLink = attackLink;
-    this.prevAttack = prevAttack;
+  public void setNextAttack (String nextAttack) {
     this.nextAttack = nextAttack;
   }
 
@@ -45,10 +34,6 @@ public class AttackInfo {
 
   public String getAttackLink() {
     return attackLink;
-  }
-
-  public String getPrevAttack() {
-    return prevAttack;
   }
 
   public String getNextAttack() {
