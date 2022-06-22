@@ -170,21 +170,17 @@ public class AllRevenges {
    */
   private static void findAttacks (String html, List<AttackInfo> attacks) {
     Document doc = Jsoup.parse(html);
-    Elements allLinks = doc.getElementsByAttribute("href");
-    Pattern pattern =
-        Pattern.compile("<a href=\"https://artfight.net/attack/[0-9]+(.|\n)+");
+    Elements allLinks = doc.select("a[href~=https://artfight.net/attack/[0-9]+.+]");
     for (Element e : allLinks) {
-      if (pattern.matcher(e.toString()).matches()) {
-        // Split by quotation marks to find attack link and title
-        String[] splitElement = e.toString().split("\"");
-        String attackLink = splitElement[1];
-        // Split by "by" to find attacker name and attack title
-        String[] splitAttackTitle = splitElement[13].split(" by ");
-        String attacker = splitAttackTitle[splitAttackTitle.length - 1];
-        String attackTitle = splitAttackTitle[splitAttackTitle.length - 2];
-        // Create new AttackInfo object with the found information
-        attacks.add(new AttackInfo(attackTitle, attacker, attackLink));
-      }
+      // Split by quotation marks to find attack link and title
+      String[] splitElement = e.toString().split("\"");
+      String attackLink = splitElement[1];
+      // Split by "by" to find attacker name and attack title
+      String[] splitAttackTitle = splitElement[13].split(" by ");
+      String attacker = splitAttackTitle[splitAttackTitle.length - 1];
+      String attackTitle = splitAttackTitle[splitAttackTitle.length - 2];
+      // Create new AttackInfo object with the found information
+      attacks.add(new AttackInfo(attackTitle, attacker, attackLink));
     }
   }
 
@@ -197,13 +193,11 @@ public class AllRevenges {
   private static String findNextPage (String html) {
     Document doc = Jsoup.parse(html);
     Elements nextPage = doc.getElementsByAttributeValue("rel", "next");
-    for (Element e : nextPage) {
-      if (Pattern.matches("<a class=\"page-link\" href=\"https://artfight.net/~(.|\n)+",
-          e.toString())) {
-        String[] splitElement = e.toString().split("\"");
-        // Return link to next page
-        return splitElement[3];
-      }
+    Elements inNextElement = nextPage.select("a[href~=https://artfight.net/~.+]");
+    if (!inNextElement.isEmpty()) {
+      String[] splitElement = inNextElement.get(0).toString().split("\"");
+      // Return link to next page
+      return splitElement[3];
     }
     return null;
   }
