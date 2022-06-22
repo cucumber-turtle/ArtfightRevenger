@@ -53,18 +53,18 @@ public class AllRevenges {
     } catch (IOException e) {
       e.printStackTrace();
     }
-    List<String> attackLinks = new ArrayList<>();
+    List<AttackInfo> attacks = new ArrayList<>();
     try {
       String pageUrl = SITE_URL + "/~" + username + "/defenses";
       while (pageUrl != null) {
         // Getting character links for every page
         String document = requestGetHtml(httpClient, pageUrl);
-        findAttacks(document, attackLinks);
+        findAttacks(document, attacks);
         pageUrl = findNextPage(document);
       }
-      for (String link : attackLinks) {
-        String attackDoc = requestGetHtml(httpClient, link);
-        AttackInfo info = getAttackInfo(attackDoc, link, "", "");
+      for (AttackInfo attack : attacks) {
+        String attackDoc = requestGetHtml(httpClient, attack.getAttackLink());
+        AttackInfo info = getAttackInfo(attackDoc, attack);
         break;
       }
     } catch (IOException | InterruptedException e) {
@@ -73,12 +73,11 @@ public class AllRevenges {
   }
 
   /**
-   * TODO: for each atk: get attacker+link+chain level. & if !next atk-> save for revenging
+   * TODO: for each atk: if !next atk-> save for revenging
    * @param html The document content of the http response.
    * @return An object with the attack information.
    */
-  public static AttackInfo getAttackInfo (String html, String attackLink, String attackName,
-      String attacker) {
+  public static AttackInfo getAttackInfo (String html, AttackInfo attack) {
     Document doc = Jsoup.parse(html);
     Elements all = doc.getElementsByAttribute("href");
     // Find previous and next attack links if they exist and create an attackinfo object to return
@@ -153,9 +152,9 @@ public class AllRevenges {
    * Find html document elements containing valid character links and add to new list.
    *
    * @param html An HTML document to find attacks from.
-   * @param attackLinks List to add attack links to.
+   * @param attacks List to add attack info objects to.
    */
-  private static void findAttacks (String html, List<String> attackLinks) {
+  private static void findAttacks (String html, List<AttackInfo> attacks) {
     Document doc = Jsoup.parse(html);
     Elements allLinks = doc.getElementsByAttribute("href");
     Pattern pattern =
@@ -163,7 +162,12 @@ public class AllRevenges {
     for (Element e : allLinks) {
       if (pattern.matcher(e.toString()).matches()) {
         String[] splitElement = e.toString().split("\"");
-        attackLinks.add(splitElement[1]);
+        String attackLink = splitElement[1];
+        String[] splitLink = attackLink.split("\\.");
+        String attackName = splitLink[2];
+        String[] splitAttackTitle = splitElement[13].split("by ");
+        String attacker = splitAttackTitle[splitAttackTitle.length - 1];
+        attacks.add(new AttackInfo(attackName, attacker, attackLink));
       }
     }
   }
