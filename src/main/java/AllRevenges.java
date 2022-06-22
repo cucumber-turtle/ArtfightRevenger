@@ -62,9 +62,27 @@ public class AllRevenges {
         findAttacks(document, attackLinks);
         pageUrl = findNextPage(document);
       }
+      for (String link : attackLinks) {
+        String attackDoc = requestGetHtml(httpClient, link);
+        AttackInfo info = getAttackInfo(attackDoc, link, "", "");
+        break;
+      }
     } catch (IOException | InterruptedException e) {
       e.printStackTrace();
     }
+  }
+
+  /**
+   * TODO: for each atk: get attacker+link+chain level. & if !next atk-> save for revenging
+   * @param html The document content of the http response.
+   * @return An object with the attack information.
+   */
+  public static AttackInfo getAttackInfo (String html, String attackLink, String attackName,
+      String attacker) {
+    Document doc = Jsoup.parse(html);
+    Elements all = doc.getElementsByAttribute("href");
+    // Find previous and next attack links if they exist and create an attackinfo object to return
+    return null;
   }
 
   /**
