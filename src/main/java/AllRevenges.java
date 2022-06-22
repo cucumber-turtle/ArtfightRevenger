@@ -149,7 +149,7 @@ public class AllRevenges {
   }
 
   /**
-   * Find html document elements containing valid character links and add to new list.
+   * Find html document elements containing valid attacks and add to existing list.
    *
    * @param html An HTML document to find attacks from.
    * @param attacks List to add attack info objects to.
@@ -161,13 +161,15 @@ public class AllRevenges {
         Pattern.compile("<a href=\"https://artfight.net/attack/[0-9]+(.|\n)+");
     for (Element e : allLinks) {
       if (pattern.matcher(e.toString()).matches()) {
+        // Split by quotation marks to find attack link and title
         String[] splitElement = e.toString().split("\"");
         String attackLink = splitElement[1];
-        String[] splitLink = attackLink.split("\\.");
-        String attackName = splitLink[2];
-        String[] splitAttackTitle = splitElement[13].split("by ");
+        // Split by "by" to find attacker name and attack title
+        String[] splitAttackTitle = splitElement[13].split(" by ");
         String attacker = splitAttackTitle[splitAttackTitle.length - 1];
-        attacks.add(new AttackInfo(attackName, attacker, attackLink));
+        String attackTitle = splitAttackTitle[splitAttackTitle.length - 2];
+        // Create new AttackInfo object with the found information
+        attacks.add(new AttackInfo(attackTitle, attacker, attackLink));
       }
     }
   }
@@ -185,6 +187,7 @@ public class AllRevenges {
       if (Pattern.matches("<a class=\"page-link\" href=\"https://artfight.net/~(.|\n)+",
           e.toString())) {
         String[] splitElement = e.toString().split("\"");
+        // Return link to next page
         return splitElement[3];
       }
     }
