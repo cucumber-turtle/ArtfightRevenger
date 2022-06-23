@@ -3,6 +3,7 @@ package Client;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import Persistency.Record;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -63,13 +64,14 @@ public class AllRevenges {
         findAttacks(document, attacks);
         pageUrl = findNextPage(document);
       }
-      // Temporary for testing
-      String attackDoc1 = requestGetHtml(httpClient, attacks.get(2).getAttackLink());
-      int otherAttacks1 = getAttackInfo(attackDoc1, attacks.get(2));
-      /*for (AttackInfo attack : attacks) {
+      Record record = new Record("my-revenges");
+      for (AttackInfo attack : attacks) {
         String attackDoc = requestGetHtml(httpClient, attack.getAttackLink());
         int otherAttacks = getAttackInfo(attackDoc, attack);
-      }*/
+        if (otherAttacks != -1) {
+          record.addRevenge(attack);
+        }
+      }
     } catch (IOException | InterruptedException e) {
       e.printStackTrace();
     }
@@ -106,7 +108,8 @@ public class AllRevenges {
    */
   private static HttpUriRequest buildRequest() {
     // Get authenticate file path and parse to Authenticate object
-    java.net.URL resourceUrl = AllRevenges.class.getResource("authenticate.json");
+    java.net.URL resourceUrl =
+        AllRevenges.class.getClassLoader().getResource("authenticate.json");
     assertNotNull(resourceUrl);
     Authenticate auth = ParseJson.readAuthenticateFile(resourceUrl.getPath());
     assertNotNull(auth);
