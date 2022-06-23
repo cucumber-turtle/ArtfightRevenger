@@ -1,6 +1,8 @@
 package Persistency;
 
 import Client.AttackInfo;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -47,11 +49,13 @@ public class Record {
    */
   public void addRevenge (AttackInfo revenge) {
     try {
-      FileWriter writer = new FileWriter(this.filePath + FILE_EXTENSION);
-      writer.append(revenge.getAttacker()).append(",").append(revenge.getAttackName())
+      FileWriter writer = new FileWriter(this.filePath + FILE_EXTENSION, true);
+      BufferedWriter bufferedWriter = new BufferedWriter(writer);
+      bufferedWriter.append(revenge.getAttacker()).append(",").append(revenge.getAttackName())
           .append(",").append(revenge.getAttackLink()).append(",").append(revenge.getAttackerLink())
           .append(",").append(revenge.getPrevAttack()).append("\n");
       writer.close();
+      bufferedWriter.close();
     } catch (IOException e) {
       e.printStackTrace();
     }
