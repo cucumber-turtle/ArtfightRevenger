@@ -93,7 +93,7 @@ public class AllRevenges {
     if (!next.isEmpty()) {
       Elements elementsWithLink = prev.select("a[href~=https://artfight.net/attack/[0-9]+.+]");
       String[] splitElement = elementsWithLink.get(0).toString().split("\"");
-      attack.setNextAttack(splitElement[1]);
+      attack.setPrevAttack(splitElement[1]);
       return 1;
     }
     return 0;
