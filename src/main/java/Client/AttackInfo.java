@@ -9,6 +9,7 @@ public class AttackInfo {
   private final String attackName;
   private final String attacker;
   private final String attackLink;
+  private String attackerLink;
   private String prevAttack;
 
   public AttackInfo (String attackName, String attacker, String attackLink) {
@@ -19,6 +20,8 @@ public class AttackInfo {
     this.attackName = attackName;
     this.attacker = attacker;
     this.attackLink = attackLink;
+    // This will not always produce a valid link
+    this.attackerLink = "https://artfight.net/~" + attacker;
     this.prevAttack = null;
   }
 
@@ -40,5 +43,13 @@ public class AttackInfo {
 
   public String getPrevAttack() {
     return prevAttack;
+  }
+
+  public String getAttackerLink() {
+    return attackerLink;
+  }
+
+  public void setAttackerLink(String attackerLink) {
+    this.attackerLink = attackerLink;
   }
 }
