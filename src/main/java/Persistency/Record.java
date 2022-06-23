@@ -1,7 +1,8 @@
 package Persistency;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import Client.AttackInfo;
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -48,14 +49,15 @@ public class Record {
    * @param revenge Revenge data to write to file.
    */
   public void addRevenge (AttackInfo revenge) {
+    assertNotNull(revenge);
     try {
       FileWriter writer = new FileWriter(this.filePath + FILE_EXTENSION, true);
       BufferedWriter bufferedWriter = new BufferedWriter(writer);
-      bufferedWriter.append(revenge.getAttacker()).append(",").append(revenge.getAttackName())
-          .append(",").append(revenge.getAttackLink()).append(",").append(revenge.getAttackerLink())
-          .append(",").append(revenge.getPrevAttack()).append("\n");
+      bufferedWriter.write(revenge.getAttacker() + "," + revenge.getAttackName()
+          + "," + revenge.getAttackLink() + "," + revenge.getAttackerLink()
+          + "," + revenge.getPrevAttack() + "\n");
+      bufferedWriter.flush();
       writer.close();
-      bufferedWriter.close();
     } catch (IOException e) {
       e.printStackTrace();
     }
