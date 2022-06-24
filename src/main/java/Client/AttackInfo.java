@@ -22,7 +22,7 @@ public class AttackInfo {
     this.attackLink = attackLink;
     // This will not always produce a valid link
     this.attackerLink = "https://artfight.net/~" + attacker;
-    this.prevAttack = null;
+    this.prevAttack = "";
   }
 
   public void setPrevAttack (String prevAttack) {
