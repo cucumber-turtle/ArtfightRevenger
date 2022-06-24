@@ -92,7 +92,7 @@ public class AllRevenges {
       return -1;
     }
     Elements prev = doc.select("table:contains(previous)");
-    if (!next.isEmpty()) {
+    if (!prev.isEmpty()) {
       Elements elementsWithLink = prev.select("a[href~=https://artfight.net/attack/[0-9]+.+]");
       String[] splitElement = elementsWithLink.get(0).toString().split("\"");
       attack.setPrevAttack(splitElement[1]);
