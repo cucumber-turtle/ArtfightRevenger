@@ -1,4 +1,4 @@
-package Client;
+package Utils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

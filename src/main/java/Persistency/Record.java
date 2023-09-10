@@ -2,7 +2,7 @@ package Persistency;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import Client.AttackInfo;
+import Utils.AttackInfo;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;

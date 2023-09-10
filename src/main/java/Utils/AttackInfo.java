@@ -1,4 +1,4 @@
-package Client;
+package Utils;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -9,7 +9,7 @@ public class AttackInfo {
   private final String attackName;
   private final String attacker;
   private final String attackLink;
-  private String attackerLink;
+  private final String attackerLink;
   private String prevAttack;
 
   public AttackInfo (String attackName, String attacker, String attackLink) {
@@ -47,9 +47,5 @@ public class AttackInfo {
 
   public String getAttackerLink() {
     return attackerLink;
-  }
-
-  public void setAttackerLink(String attackerLink) {
-    this.attackerLink = attackerLink;
   }
 }
