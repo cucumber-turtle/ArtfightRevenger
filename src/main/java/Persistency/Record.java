@@ -53,8 +53,8 @@ public class Record {
     try {
       FileWriter writer = new FileWriter(this.filePath + FILE_EXTENSION, true);
       BufferedWriter bufferedWriter = new BufferedWriter(writer);
-      bufferedWriter.write(revenge.getAttacker() + "," + revenge.getAttackName()
-          + "," + revenge.getAttackLink() + "," + revenge.getAttackerLink()
+      bufferedWriter.write(revenge.getAttacker() + ", \"" + revenge.getAttackName()
+          + "\"," + revenge.getAttackLink() + "," + revenge.getAttackerLink()
           + "," + revenge.getPrevAttack() + "\n");
       bufferedWriter.flush();
       writer.close();

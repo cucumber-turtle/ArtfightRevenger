@@ -11,17 +11,16 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.config.CookieSpecs;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.methods.RequestBuilder;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.client.LaxRedirectStrategy;
+
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.cookie.StandardCookieSpec;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -44,18 +43,21 @@ public class AllRevenges {
   public static void main(String[] args) {
     // Http client using standard cookie specification
     /* On http client redirects: https://www.baeldung.com/httpclient-redirect-on-http-post */
-    HttpClient httpClient = HttpClients.custom().setDefaultRequestConfig(RequestConfig.custom()
-            .setCookieSpec(CookieSpecs.STANDARD).build()).setRedirectStrategy(new LaxRedirectStrategy())
-        .build();
-    HttpUriRequest httpPost = buildRequest();
+    CloseableHttpClient httpClient = HttpClients.custom().setDefaultRequestConfig(RequestConfig.custom()
+            .setCookieSpec(StandardCookieSpec.STRICT).build()).build();
+    ClassicHttpRequest httpPost = buildRequest();
+    // List of attacks
+    List<AttackInfo> attacks = new ArrayList<>();
     try {
-      HttpResponse httpresponse = httpClient.execute(httpPost);
-      // Client is redirected and status should be OK
-      assertEquals(HttpStatus.SC_OK, httpresponse.getStatusLine().getStatusCode());
+      // First request is to login to the site
+      httpClient.execute(httpPost, response -> {
+        // Client is redirected and status should be OK
+        assertEquals(HttpStatus.SC_OK, response.getCode());
+        return null;
+      });
     } catch (IOException e) {
       e.printStackTrace();
     }
-    List<AttackInfo> attacks = new ArrayList<>();
     try {
       String pageUrl = SITE_URL + "/~" + username + "/defenses";
       while (pageUrl != null) {
@@ -106,7 +108,7 @@ public class AllRevenges {
    *
    * @return HttpUriRequest.
    */
-  private static HttpUriRequest buildRequest() {
+  private static ClassicHttpRequest buildRequest() {
     // Get authenticate file path and parse to Authenticate object
     Authenticate auth = ParseJson.readAuthenticateFile("src/main/resources/authenticate.json");
     assertNotNull(auth);
@@ -114,7 +116,7 @@ public class AllRevenges {
     String password = auth.getPassword();
 
     // Build post request for login
-    RequestBuilder reqbuilder = RequestBuilder.post();
+    ClassicRequestBuilder reqbuilder = ClassicRequestBuilder.post();
     //Set URI and parameters
     reqbuilder = reqbuilder.setUri("https://artfight.net/login");
     reqbuilder = reqbuilder.addParameter("username", username).addParameter("password", password);
@@ -130,17 +132,15 @@ public class AllRevenges {
    * @return The document content of the http response.
    * @throws IOException The request execution can throw an exception.
    */
-  private static String requestGetHtml (HttpClient httpClient, String url)
+  private static String requestGetHtml (CloseableHttpClient httpClient, String url)
       throws IOException, InterruptedException {
     HttpGet request = new HttpGet(url);
-    HttpResponse response;
     // Always keep at least 2 seconds time between the last request and the next one
     Thread.sleep(2000);
-    response = httpClient.execute(request);
-      int statusCode = response.getStatusLine().getStatusCode();
-
-      assertEquals(HttpStatus.SC_OK, statusCode);
-      response.getEntity();
+    return httpClient.execute(request, response -> {
+        // Client is redirected and status should be OK
+        assertEquals(HttpStatus.SC_OK, response.getCode());
+        response.getEntity();
       HttpEntity entity = response.getEntity();
       if (entity == null) {
         System.out.println("Null content.");
@@ -161,6 +161,7 @@ public class AllRevenges {
         return document;
       }
       throw new IOException ("Some error happened here.");
+    });
   }
 
   /**
