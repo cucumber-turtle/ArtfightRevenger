@@ -1,4 +1,4 @@
-package Utils;
+package main.java.Utils;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 

@@ -1,7 +1,7 @@
-package Client.Http;
+package main.java.Client.Http;
 
-import Utils.Authenticate;
-import Utils.ParseJson;
+import main.java.Utils.Authenticate;
+import main.java.Utils.ParseJson;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.cookie.StandardCookieSpec;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;

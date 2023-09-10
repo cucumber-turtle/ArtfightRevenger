@@ -1,8 +1,8 @@
-package Client;
+package main.java.Client;
 
 import Client.Http.RequestHtml;
-import Persistency.Record;
-import Utils.AttackInfo;
+import main.java.Persistency.Record;
+import main.java.Utils.AttackInfo;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

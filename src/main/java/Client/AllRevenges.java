@@ -1,6 +1,6 @@
-package Client;
+package main.java.Client;
 
-import Client.Http.Login;
+import main.java.Client.Http.Login;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 
 /**
