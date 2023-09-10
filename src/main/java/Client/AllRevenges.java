@@ -37,7 +37,7 @@ public class AllRevenges {
   private static String username;
 
   /**
-   * Used https://www.tutorialspoint.com/apache_httpclient/apache_httpclient_form_based_login.htm
+   * Used <a href="https://www.tutorialspoint.com/apache_httpclient/apache_httpclient_form_based_login.htm">...</a>
    *
    * @param args Executable arguments.
    */
@@ -108,10 +108,7 @@ public class AllRevenges {
    */
   private static HttpUriRequest buildRequest() {
     // Get authenticate file path and parse to Authenticate object
-    java.net.URL resourceUrl =
-        AllRevenges.class.getClassLoader().getResource("authenticate.json");
-    assertNotNull(resourceUrl);
-    Authenticate auth = ParseJson.readAuthenticateFile(resourceUrl.getPath());
+    Authenticate auth = ParseJson.readAuthenticateFile("src/main/resources/authenticate.json");
     assertNotNull(auth);
     username = auth.getUsername();
     String password = auth.getPassword();
